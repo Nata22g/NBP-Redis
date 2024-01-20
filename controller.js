@@ -209,7 +209,7 @@ export const vratiStatistikuUsera = async (req, res) => {
     }
 
     const response = await client.hGetAll("odgovori:" + req.params.username)
-    console.log(response)
+    //console.log(response)
     client.disconnect()
     return res.status(200).json(response)
 }
