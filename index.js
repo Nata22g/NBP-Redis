@@ -2,7 +2,7 @@ import express from 'express';
 import cors from "cors";
 
 import { dodajScore, dodajTest, dodajUsera, odgovoriNetacno, odgovoriTacno, prijaviSe, vratiAktivneUsere, vratiLeaderboard, 
-    vratiStatistikuTesta, vratiSveTestove, vratiTest, vratiUsere } from './controller.js';
+    vratiStatistikuTesta, vratiStatistikuUsera, vratiSveTestove, vratiTest, vratiUsere } from './controller.js';
 
 const PORT = 5000;
 
@@ -26,6 +26,7 @@ app.get('/vratitest/:testname', vratiTest)
 app.get('/vratisvetestove', vratiSveTestove)
 app.get('/vratistat/:testname', vratiStatistikuTesta)
 app.get('/vratiaktivne', vratiAktivneUsere)
+app.get('/vratistatusera/:username', vratiStatistikuUsera)
 
 app.listen(PORT, () => {
     console.log(`backend server is running on port ${PORT}`);

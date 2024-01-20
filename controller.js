@@ -27,6 +27,11 @@ export const dodajUsera = async(req, res) => {
     const response = await client.sAdd("usernames", req.body.username)
     const response2 = await client.set("active:" + req.body.username, "x")
     const response3 = await client.expire("active:" + req.body.username, 50)
+    const response4 = await client.hSet("odgovori:" + req.body.username, 
+                                                            {
+                                                                correct: 0,
+                                                                incorrect: 0
+                                                            })
     //console.log(response3)
     await client.disconnect()
     return res.status(200).json("Uspešno dodavanje usera")
@@ -197,6 +202,18 @@ export const vratiStatistikuTesta = async (req, res) => {
     return res.status(200).json(result)
 }
 
+export const vratiStatistikuUsera = async (req, res) => {
+    if (!client.isOpen)
+    {
+        await client.connect()
+    }
+
+    const response = await client.hGetAll("odgovori:" + req.params.username)
+    console.log(response)
+    client.disconnect()
+    return res.status(200).json(response)
+}
+
 export const odgovoriTacno = async (req, res) => {
     if (!client.isOpen)
     {
@@ -216,7 +233,8 @@ export const odgovoriTacno = async (req, res) => {
     }
 
     const response2 = await client.zIncrBy("leaderboard", 10, req.body.username)
-    const response3 = await client.hIncrBy(req.body.question, "correct", 1)
+    const response3 = await client.hIncrBy("odgovori:" + req.body.username, "correct", 1)
+    const response4 = await client.hIncrBy(req.body.question, "correct", 1)
     //console.log(response)
     await client.disconnect()
     return res.status(200).json("Tačan odgovor")
@@ -241,7 +259,8 @@ export const odgovoriNetacno = async (req, res) => {
     }
 
     const response2 = await client.zIncrBy("leaderboard", -5, req.body.username)
-    const response3 = await client.hIncrBy(req.body.question, "incorrect", 1)
+    const response3 = await client.hIncrBy("odgovori:" + req.body.username, "incorrect", 1)
+    const response4 = await client.hIncrBy(req.body.question, "incorrect", 1)
     //console.log(response)
     await client.disconnect()
     return res.status(200).json("Netačan odgovor")
