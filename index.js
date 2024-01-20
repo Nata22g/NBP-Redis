@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from "cors";
 
-import { dodajScore, dodajTest, dodajUsera, odgovoriNetacno, odgovoriTacno, prijaviSe, vratiAktivneUsere, vratiLeaderboard, vratiStatistikuTesta, vratiSveTestove, vratiTest, vratiUsere } from './controller.js';
+import { dodajScore, dodajTest, dodajUsera, odgovoriNetacno, odgovoriTacno, prijaviSe, vratiAktivneUsere, vratiLeaderboard, 
+    vratiStatistikuTesta, vratiSveTestove, vratiTest, vratiUsere } from './controller.js';
 
 const PORT = 5000;
 

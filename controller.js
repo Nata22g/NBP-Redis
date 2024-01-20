@@ -69,7 +69,7 @@ export const vratiAktivneUsere = async (req, res) => {
     return res.status(200).json(aktivni)
 }
 
-export const dodajScore = async (req, res) => {
+export const dodajScore = async (req, res) => { //ovo se ne koristi
     if (!client.isOpen)
     {
         await client.connect()
@@ -109,25 +109,27 @@ export const dodajTest = async (req, res) => {
         await client.connect()
     }
 
-    const response = await client.exists(req.body.testname + "pitanja")
+    const response = await client.exists(req.body.testname + ":pitanja")
     //console.log(response)
     if ( response )
     {
         return res.status(400).json("Naziv testa već postoji")
     }
 
-    for (let i = 0; i < 2; i++)
+    for (let i in req.body.txt)
     {
+        //console.log(typeof(i))
         let pitanje = {
             questionText: req.body.txt[i],
             options: req.body.opts[i],
             rightAnswer: req.body.ra[i]
         }
 
-        const response = await client.sAdd(req.body.testname + "pitanja", JSON.stringify(pitanje))
+        const response = await client.sAdd(req.body.testname + ":pitanja", JSON.stringify(pitanje))
         //console.log(response)
-        let j = i + 1
-        const response2 = await client.hSet(req.body.testname + "pitanje" + j, 
+        let j = parseInt(i) + 1
+        //console.log(j)
+        const response2 = await client.hSet(req.body.testname + ":pitanje" + j, 
                                                             {
                                                                 questionNumber: j,
                                                                 correct: 0,
@@ -137,7 +139,7 @@ export const dodajTest = async (req, res) => {
     }
 
     await client.disconnect()
-    return res.status(200).json("Uspešno dodat test")
+    return res.status(200).json("Test uspešno dodat")
 }
 
 export const vratiTest = async (req, res) => {
@@ -146,7 +148,7 @@ export const vratiTest = async (req, res) => {
         await client.connect()
     }
 
-    const response = await client.sMembers(req.params.testname + "pitanja")
+    const response = await client.sMembers(req.params.testname + ":pitanja")
     //console.log(response)
     let objs = []
     for ( let obj of response)
@@ -183,12 +185,12 @@ export const vratiStatistikuTesta = async (req, res) => {
         await client.connect()
     }
 
-    const response = await client.keys(req.params.testname + "pitanje*")
+    const response = await client.keys(req.params.testname + ":pitanje*")
     let result = []
     //console.log(response)
-    for ( let str of response)
+    for ( let pitanje of response)
     {
-        result.push(await client.hGetAll(str))
+        result.push(await client.hGetAll(pitanje))
     }
     //console.log(result)
     client.disconnect()
@@ -201,7 +203,20 @@ export const odgovoriTacno = async (req, res) => {
         await client.connect()
     }
 
-    const response = await client.hIncrBy(req.body.question, "correct", 1)
+    const users = await client.sMembers("usernames")
+    if ( !users.includes(req.body.username) )
+    {
+        return res.status(400).json("Username ne postoji!")
+    }
+
+    const response = await client.keys("active*")
+    if (!response.includes("active:" + req.body.username))
+    {
+        return res.status(400).json("Niste prijavljeni")
+    }
+
+    const response2 = await client.zIncrBy("leaderboard", 10, req.body.username)
+    const response3 = await client.hIncrBy(req.body.question, "correct", 1)
     //console.log(response)
     await client.disconnect()
     return res.status(200).json("Tačan odgovor")
@@ -213,7 +228,20 @@ export const odgovoriNetacno = async (req, res) => {
         await client.connect()
     }
 
-    const response = await client.hIncrBy(req.body.question, "incorrect", 1)
+    const users = await client.sMembers("usernames")
+    if ( !users.includes(req.body.username) )
+    {
+        return res.status(400).json("Username ne postoji!")
+    }
+
+    const response = await client.keys("active*")
+    if (!response.includes("active:" + req.body.username))
+    {
+        return res.status(400).json("Niste prijavljeni")
+    }
+
+    const response2 = await client.zIncrBy("leaderboard", -5, req.body.username)
+    const response3 = await client.hIncrBy(req.body.question, "incorrect", 1)
     //console.log(response)
     await client.disconnect()
     return res.status(200).json("Netačan odgovor")
