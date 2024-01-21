@@ -1,0 +1,12 @@
+.klasaZaTestove {
+    display: flex; /* Use flexbox layout */
+    flex-direction: column;
+}
+
+.question-heading {
+    color: black;
+}
+
+.option-button {
+    margin: 5px;
+}

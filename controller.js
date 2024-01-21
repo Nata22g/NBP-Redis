@@ -1,7 +1,7 @@
 import client from "./redis-config.js" 
 
 export const vratiUsere = async (req, res) => {
-    console.log("blabla")
+    //console.log("blabla")
     if (!client.isOpen)
     {
         await client.connect()
@@ -9,7 +9,7 @@ export const vratiUsere = async (req, res) => {
     const users = await client.sMembers("usernames")
     await client.disconnect()
     return res.status(200).json(users)
-}
+} //uradjeno
 
 export const dodajUsera = async(req, res) => {
     if (!client.isOpen)
@@ -26,7 +26,7 @@ export const dodajUsera = async(req, res) => {
     }
     const response = await client.sAdd("usernames", req.body.username)
     const response2 = await client.set("active:" + req.body.username, "x")
-    const response3 = await client.expire("active:" + req.body.username, 50)
+    const response3 = await client.expire("active:" + req.body.username, 300)
     const response4 = await client.hSet("odgovori:" + req.body.username, 
                                                             {
                                                                 correct: 0,
@@ -35,7 +35,7 @@ export const dodajUsera = async(req, res) => {
     //console.log(response3)
     await client.disconnect()
     return res.status(200).json("Uspešno dodavanje usera")
-}
+} //uradjeno
 
 export const prijaviSe = async (req, res) => {
     if (!client.isOpen)
@@ -51,11 +51,11 @@ export const prijaviSe = async (req, res) => {
         return res.status(400).json("Username ne postoji!")
     }
     const response = await client.set("active:" + req.body.username, "x")
-    const response2 = await client.expire("active:" + req.body.username, 50)
+    const response2 = await client.expire("active:" + req.body.username, 300)
     //console.log(response)
     await client.disconnect()
     return res.status(200).json("Uspešno prijavljivanje")
-}
+} //uradjeno
 
 export const vratiAktivneUsere = async (req, res) => {
     if (!client.isOpen)
@@ -72,7 +72,7 @@ export const vratiAktivneUsere = async (req, res) => {
     }
     client.disconnect()
     return res.status(200).json(aktivni)
-}
+} //uradjeno
 
 export const dodajScore = async (req, res) => { //ovo se ne koristi
     if (!client.isOpen)
@@ -94,7 +94,7 @@ export const dodajScore = async (req, res) => { //ovo se ne koristi
     //console.log(respone)
     await client.disconnect()
     return res.status(200).json("Uspešno dodavanje score-a")
-}
+} // uradjeno
 
 export const vratiLeaderboard = async (req, res) => {
     if (!client.isOpen)
@@ -134,9 +134,8 @@ export const dodajTest = async (req, res) => {
         //console.log(response)
         let j = parseInt(i) + 1
         //console.log(j)
-        const response2 = await client.hSet(req.body.testname + ":pitanje" + j, 
+        const response2 = await client.hSet(req.body.testname + ":pitanje:" + req.body.txt[i], 
                                                             {
-                                                                questionNumber: j,
                                                                 correct: 0,
                                                                 incorrect: 0
                                                             })
@@ -158,14 +157,14 @@ export const vratiTest = async (req, res) => {
     let objs = []
     for ( let obj of response)
     {
-        // console.log(obj)
-        // console.log(JSON.parse(obj))
+        console.log(obj)
+        //console.log(JSON.parse(obj))
         objs.push(JSON.parse(obj))
     }
     //console.log(objs)
     client.disconnect()
     return res.status(200).json(objs)
-}
+} //uradjeno
 
 export const vratiSveTestove = async (req, res) => {
     if (!client.isOpen)
@@ -178,11 +177,11 @@ export const vratiSveTestove = async (req, res) => {
     let testovi = []
     for ( let str of response)
     {
-        testovi.push(str.replace("pitanja", ""))
+        testovi.push(str.replace(":pitanja", ""))
     }
     client.disconnect()
     return res.status(200).json(testovi)
-}
+} //uradjeno
 
 export const vratiStatistikuTesta = async (req, res) => {
     if (!client.isOpen)
@@ -238,7 +237,7 @@ export const odgovoriTacno = async (req, res) => {
     //console.log(response)
     await client.disconnect()
     return res.status(200).json("Tačan odgovor")
-}
+} //uradjeno
 
 export const odgovoriNetacno = async (req, res) => {
     if (!client.isOpen)
@@ -264,4 +263,4 @@ export const odgovoriNetacno = async (req, res) => {
     //console.log(response)
     await client.disconnect()
     return res.status(200).json("Netačan odgovor")
-}
+} //uradjeno
