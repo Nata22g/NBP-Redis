@@ -70,7 +70,7 @@ export const vratiAktivneUsere = async (req, res) => {
     {
         aktivni.push(user.replace("active:", ""))
     }
-    client.disconnect()
+    await client.disconnect()
     return res.status(200).json(aktivni)
 } //uradjeno
 
@@ -104,9 +104,9 @@ export const vratiLeaderboard = async (req, res) => {
     const leaderboard = await client.zRangeWithScores("leaderboard", 0, -1)
     //console.log(leaderboard)
     leaderboard.reverse()
-    client.disconnect()
+    await client.disconnect()
     return res.status(200).json(leaderboard)
-}
+} // uradjeno
 
 export const dodajTest = async (req, res) => {
     if (!client.isOpen)
@@ -136,6 +136,7 @@ export const dodajTest = async (req, res) => {
         //console.log(j)
         const response2 = await client.hSet(req.body.testname + ":pitanje:" + req.body.txt[i], 
                                                             {
+                                                                questionText: req.body.txt[i],
                                                                 correct: 0,
                                                                 incorrect: 0
                                                             })
@@ -144,7 +145,7 @@ export const dodajTest = async (req, res) => {
 
     await client.disconnect()
     return res.status(200).json("Test uspešno dodat")
-}
+} //uradjeno
 
 export const vratiTest = async (req, res) => {
     if (!client.isOpen)
@@ -162,7 +163,7 @@ export const vratiTest = async (req, res) => {
         objs.push(JSON.parse(obj))
     }
     //console.log(objs)
-    client.disconnect()
+    await client.disconnect()
     return res.status(200).json(objs)
 } //uradjeno
 
@@ -179,7 +180,7 @@ export const vratiSveTestove = async (req, res) => {
     {
         testovi.push(str.replace(":pitanja", ""))
     }
-    client.disconnect()
+    await client.disconnect()
     return res.status(200).json(testovi)
 } //uradjeno
 
@@ -197,9 +198,9 @@ export const vratiStatistikuTesta = async (req, res) => {
         result.push(await client.hGetAll(pitanje))
     }
     //console.log(result)
-    client.disconnect()
+    await client.disconnect()
     return res.status(200).json(result)
-}
+} // uradjeno
 
 export const vratiStatistikuUsera = async (req, res) => {
     if (!client.isOpen)
@@ -208,10 +209,17 @@ export const vratiStatistikuUsera = async (req, res) => {
     }
 
     const response = await client.hGetAll("odgovori:" + req.params.username)
-    //console.log(response)
-    client.disconnect()
-    return res.status(200).json(response)
-}
+    
+    await client.disconnect()
+
+    const keys = Object.keys(response);
+
+    if (keys.length === 0) {
+        return res.status(404).json('User not found!')
+    } else {
+        return res.status(200).json(response)
+    }
+} // uradjeno
 
 export const odgovoriTacno = async (req, res) => {
     if (!client.isOpen)

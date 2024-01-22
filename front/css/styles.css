@@ -3,10 +3,26 @@
     flex-direction: column;
 }
 
-.question-heading {
+.question-heading,
+.klasaZaDodajTest {
     color: black;
 }
 
 .option-button {
     margin: 5px;
+}
+
+.roditeljski-div-moj{
+    display: flex;
+}
+
+.StatistikaTESTOVA{
+    margin-left: 150px;
+}
+
+.result-paragraph {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    margin-top: 30px;
 }
